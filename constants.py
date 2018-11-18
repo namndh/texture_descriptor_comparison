@@ -15,7 +15,17 @@ KYLBERG_NB_MODEL = os.path.join(SAVED_MODEL_DIR, 'kylberg_nb.bin')
 KTH_TIPS_2_NB_MODEL = os.path.join(SAVED_MODEL_DIR, 'kth_2_tips_nb.bin')
 
 
+
+
+
+
 KNN_N_NEIGHBORS = 5
 
 KYLBERG_CLASS_NUM = 28
 KTH_TIPS_2_CLASS_NUM = 44
+
+KYLBERG_CONFIGS = {'svm_model_path': KYLBERG_SVM_MODEL, 'knn_model_path': KYlBERG_KNN_MODEL,
+						'nb_model_path': KYLBERG_NB_MODEL, 'class_num': KYLBERG_CLASS_NUM}
+
+KTH_TIPS_2_CONFIGS = {'svm_model_path': KTH_TIPS_2_SVM_MODEL, 'knn_model_path': KTH_TIPS_2_KNN_MODEL,
+						'nb_model_path': KTH_TIPS_2_NB_MODEL, 'class_num': KTH_TIPS_2_CLASS_NUM}					

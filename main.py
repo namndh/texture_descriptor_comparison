@@ -10,6 +10,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split, GridSearchCV
 
 import constants
+from utils import *
 
 parser = argparse.ArgumentParser(description="Texture Descriptor Comparision")
 parser.add_argument('--train', '-t', action='store_true', help='Train the model')
@@ -31,7 +32,8 @@ y_train_kth_tips_2 = None
 x_test_kth_tips_2 = None
 y_test_kth_tips_2 =None
 
-
+kth_config = configs('kth')
+kylberg_config = configs('kylberg')
 
 
 if args.train:
