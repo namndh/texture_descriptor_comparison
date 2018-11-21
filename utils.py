@@ -147,7 +147,7 @@ def get_labels(folders):
         labels.append(label)
     return labels
 
-def build_fns_labels(labels, test_ratio = 0.2, val_ratio=0.2):
+def build_fns_labels(labels, test_ratio = 0.2, val_ratio=0.2, dataset):
     train_paths = list()
     val_paths = list()
     test_paths = list()
@@ -155,7 +155,10 @@ def build_fns_labels(labels, test_ratio = 0.2, val_ratio=0.2):
     val_ratio = (1-test_ratio)*val_ratio
     for idx, label in enumerate(labels):
         label_paths = list()
-        label_dir = os.path.join(constants.DATASET_PATH, label)
+        if dataset == 'kth':
+        	label_dir = os.path.join(constants.KTH_TIPS2_DATA_PATH, label)
+        if dataset == 'kylberg':
+        	label_dir = os.path.join(constants.KYLBERG_DATA_PATH, label)
         fns = glob.glob(label_dir+'/*.png')
         for fn in fns:
             label_paths.append([fn, idx])
@@ -170,15 +173,3 @@ def build_fns_labels(labels, test_ratio = 0.2, val_ratio=0.2):
             test_paths.append(path)
 
     return train_paths, val_paths, test_paths
-
-def split_datasets(dataset):
-    fns, labels = list(zip(*dataset))
-    fns = list(fns)
-    idx = list(fns)
-    X_train_validation, X_test, y_train_validation, y_test = train_test_split(fns, labels, test_size=0.2, random_state=42, shuffle=True)
-    X_train, X_validation, y_train, y_validation = train_test_split(X_train_validation, y_train_validation, test_size=0.25, random_state=42, 
-        shuffle=True)
-    trainset = list(zip(X_train, y_train))
-    validateset = list(zip(X_validation, y_validation))
-    testset = list(zip(X_test, y_test))
-    return trainset, validateset, testset
