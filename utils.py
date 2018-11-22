@@ -11,6 +11,8 @@ import numpy as np
 import pywt
 from skimage import feature
 from torch.utils.data import Dataset
+import glob
+import mahotas as mt
 
 import constants
 
@@ -54,6 +56,8 @@ class classfier():
 
 def extract_mean_std(img):
 	mean, stdev = cv2.meanStdDev(img, mask=None)
+	mean = mean[0][0]
+	stdev = stdev[0][0]
 	return mean, stdev
 
 
@@ -66,9 +70,7 @@ def gaborFilters_featuresExtractor(img, size=40):
 	features_vector = list()
 	for kernel in kernels:
 		img_output = cv2.filter2D(img, cv2.CV_8UC3, kernel)
-		mean, stdev = extract_mean_std(img)
-		features_vector.append(mean)
-		features_vector.append(stdev)
+		features_vector.extend(extract_mean_std(img_output))
 
 	return features_vector
 
@@ -77,26 +79,28 @@ def Haar_featuresExtractor(img, depth=3):
 	for i in range(depth):
 		coeff2 = pywt.dwt2(img, 'haar')
 		LL, (LH, HL, HH) = coeff2
-		features_vector.extend((extract_mean_std(LH),extract_mean_std(HL), extract_mean_std(HH)))
+		features_vector.extend(extract_mean_std(LH))
+		features_vector.extend(extract_mean_std(HL))
+		features_vector.extend(extract_mean_std(HH))
 		img = LL
 
 	return features_vector
 
 def DB4_featuresExtractor(img, depth=3):
-	features_vector = list():
+	features_vector = list()
 	for i in range(depth):
 		coeff2 = pywt.dwt2(img, 'db4')
 		LL, (LH, HL, HH) = coeff2
-		features_vector.append((extract_mean_std(LH),extract_mean_std(HL), extract_mean_std(HH)))
+		features_vector.extend(extract_mean_std(LH))
+		features_vector.extend(extract_mean_std(HL))
+		features_vector.extend(extract_mean_std(HH))
 		img = LL
 
 	return features_vector
 
 def LBP_featuresExtractor(img, numPoints=24, radius=8, eps=1e-7):
 	lbp = feature.local_binary_pattern(img, numPoints, radius, method='uniform')
-	(hist, _) = np.histogram(lbp.ravel(),
-		bins=np.arange(0, self.numPoints + 3),
-		range=(0, self.numPoints + 2))
+	(hist, _) = np.histogram(lbp.ravel(), bins=np.arange(0, numPoints + 3), range=(0, numPoints + 2))
 
 	# normalize the histogram
 	hist = hist.astype("float")
@@ -105,7 +109,7 @@ def LBP_featuresExtractor(img, numPoints=24, radius=8, eps=1e-7):
 	# return the histogram of Local Binary Patterns
 	return hist
 
-def GLCM_featuresExtractor(img):
+def GLCM_featuresExtractor(image):
 	textures = mt.features.haralick(image)
 
 	# take the mean of it and return it
@@ -116,60 +120,82 @@ def GLCM_featuresExtractor(img):
 
 class Mydataset(Dataset):
 	"""custom dataset to load and process image"""
-    def __init__(self, data, transform=None):
-    	self.fns = list()
-    	self.labels = list()
-    	for fn, label in data:
-    		self.fns.append(fn)
-    		self.labels.append(label)
-    	self.transform = transform
+	def __init__(self, data, transform=None):
+		self.fns = list()
+		self.labels = list()
+		for fn, label in data:
+			self.fns.append(fn)
+			self.labels.append(label)
+		self.transform = transform
 
-    def __len__(self):
-    	return len(self.fns)
+	def __len__(self):
+		return len(self.fns)
 
-    def __getitem__(self, idx):
-    	image = cv2.imread(self.fns[idx])
-    	
-    	gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    	if self.transform:
-    		features_vector = self.transform(image)
-        return features_vector, self.labels[idx]
+	def __getitem__(self, idx):
+		image = cv2.imread(self.fns[idx])
+		gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		gray_img = cv2.resize(gray_img, (256, 256))
+		if self.transform:
+			features_vector = self.transform(image)
+			return features_vector, self.labels[idx]
 		
 
-def get_labels(folders):
-    substr1 = 'subdataset/'
-    interval = len(substr1)
-    labels = list()
-    for folder in folders:
-        idx = folder.find(substr1)
-        label = folder[idx+interval:len(folder)]
-        labels.append(label)
-    return labels
+def get_labels(folders, substrings):
+	substr1 = '/' + substrings
+	interval = len(substr1)+1
+	labels = list()
+	for folder in folders:
+		idx = folder.find(substr1)
+		label = folder[idx+interval:len(folder)]
+		labels.append(label)
+	labels = labels[1:]
+	return labels
 
-def build_fns_labels(labels, test_ratio = 0.2, val_ratio=0.2, dataset):
-    train_paths = list()
-    val_paths = list()
-    test_paths = list()
-    train_ratio = (1-val_ratio)*(1-test_ratio)
-    val_ratio = (1-test_ratio)*val_ratio
-    for idx, label in enumerate(labels):
-        label_paths = list()
-        if dataset == 'kth':
-        	label_dir = os.path.join(constants.KTH_TIPS2_DATA_PATH, label)
-        if dataset == 'kylberg':
-        	label_dir = os.path.join(constants.KYLBERG_DATA_PATH, label)
-        fns = glob.glob(label_dir+'/*.png')
-        for fn in fns:
-            label_paths.append([fn, idx])
-        train_pivot = int(train_ratio*len(label_paths))
-        val_pivot = train_pivot + int(val_ratio*len(label_paths))
+def build_fns_labels(labels, dataset, test_ratio=0.2):
+	train_paths = list()
+	test_paths = list()
+	train_ratio = 1 - test_ratio
+	for idx, label in enumerate(labels):
+		data_paths = list()
+		if dataset == 'kth':
+			label_dir = os.path.join(constants.KTH_TIPS2_DATA_PATH, label)
+		if dataset == 'kylberg':
+			label_dir = os.path.join(constants.KYLBERG_DATA_PATH, label)
+
+		fns = glob.glob(label_dir + '/*.png')
+		for fn in fns:
+			data_paths.append([fn, idx])
+		train_pivot = int(train_ratio*len(data_paths))
+
+		for path in data_paths[:int(train_pivot)]:
+			train_paths.append(path)
+		for path in data_paths[int(train_pivot):]:
+			test_paths.append(path)
+
+	return train_paths, test_paths
+# def build_fns_labels(labels, test_ratio = 0.2, val_ratio=0.2, dataset):
+#     train_paths = list()
+#     val_paths = list()
+#     test_paths = list()
+#     train_ratio = (1-val_ratio)*(1-test_ratio)
+#     val_ratio = (1-test_ratio)*val_ratio
+#     for idx, label in enumerate(labels):
+#         label_paths = list()
+#         if dataset == 'kth':
+#         	label_dir = os.path.join(constants.KTH_TIPS2_DATA_PATH, label)
+#         if dataset == 'kylberg':
+#         	label_dir = os.path.join(constants.KYLBERG_DATA_PATH, label)
+#         fns = glob.glob(label_dir+'/*.png')
+#         for fn in fns:
+#             label_paths.append([fn, idx])
+#         train_pivot = int(train_ratio*len(label_paths))
+#         val_pivot = train_pivot + int(val_ratio*len(label_paths))
         
-        for path in label_paths[:int(train_ratio*len(label_paths))]:
-            train_paths.append(path)
-        for path in label_paths[train_pivot:val_pivot]:
-            val_paths.append(path)
-        for path in label_paths[val_pivot:]:
-            test_paths.append(path)
+#         for path in label_paths[:int(train_ratio*len(label_paths))]:
+#             train_paths.append(path)
+#         for path in label_paths[train_pivot:val_pivot]:
+#             val_paths.append(path)
+#         for path in label_paths[val_pivot:]:
+#             test_paths.append(path)
 
-    return train_paths, val_paths, test_paths
+#     return train_paths, val_paths, test_paths

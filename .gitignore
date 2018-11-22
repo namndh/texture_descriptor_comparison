@@ -194,6 +194,6 @@ bh_unicode_properties.cache
 # https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
 
-data/
+datas/
 
 # End of https://www.gitignore.io/api/data,linux,python,sublimetext
