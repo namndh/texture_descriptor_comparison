@@ -18,13 +18,36 @@ KTH_TIPS_2_KNN_MODEL = os.path.join(SAVED_MODEL_DIR, 'kth_2_tips_knn.bin')
 KYLBERG_NB_MODEL = os.path.join(SAVED_MODEL_DIR, 'kylberg_nb.bin')
 KTH_TIPS_2_NB_MODEL = os.path.join(SAVED_MODEL_DIR, 'kth_2_tips_nb.bin')
 
-GABOR_DATA_PATHS = {'kylberg':os.path.join(DATA_DIR, 'kylberg_gabor.bin', 'kth':os.path.join(DATA_DIR, 'kth_gabor.bin'))}
-HAAR_DATA_PATHS = {'kylberg':os.path.join(DATA_DIR, 'kylberg_haar.bin'), 'kth':os.path.join(DATA_DIR, 'kth_haar.bin')}
-DB4_DATA_PATHS = {'kylberg':os.path.join(DATA_DIR, 'kylberg_db4.bin'), 'kth':os.path.join(DATA_DIR, 'kth_db4.bin')}
-LBP_DATA_PATHS = {'kylberg':os.path.join(DATA_DIR, 'kylberg_lbp.bin'), 'kth':os.path.join(DATA_DIR, 'kth_lbp.bin')}
-GLCM_DATA_PATHS = {'kylberg':os.path.join(DATA_DIR, 'kylberg_glcm.bin'), 'kth':os.path.join(DATA_DIR, 'kth_glcm.bin')}
+GABOR_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_gabor.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_gabor.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_gabor.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_gabor.bin')
+					}
+HAAR_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_haar.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_haar.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_haar.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_haar.bin')
+					}
+DB4_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_db4.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_db4.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_db4.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_db4.bin')
+					}
+
+LBP_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_lbp.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_lbp.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_lbp.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_lbp.bin')
+					}
+
+GLCM_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_glcm.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_glcm.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_glcm.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_glcm.bin')
+					}
 
 
+datas_paths = {'gabor':GABOR_DATA_PATHS, 'haar':HAAR_DATA_PATHS, 'db4':DB4_DATA_PATHS, 'lbp':LBP_DATA_PATHS, 'glcm':GLCM_DATA_PATHS}
 
 
 

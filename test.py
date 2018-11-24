@@ -4,6 +4,8 @@ import os
 from skimage.filters import gabor_kernel
 import numpy as np
 from utils import *
+from torch.utils.data import Dataset, DataLoader
+
 
 # img_path = os.path.join('./data/Kylberg/blanket1/blanket1-a-p001.png')
 
@@ -81,4 +83,39 @@ train_paths, test_paths = build_fns_labels(labels, dataset='kylberg')
 
 img = cv2.imread(train_paths[0][0])
 img = cv2.cvtColor(img,	 cv2.COLOR_BGR2GRAY)
-print(DB4_featuresExtractor(img))
+print(extractors['db4'](img))
+
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
+DATA_DIR = os.path.join(PROJECT_DIR, 'datas')
+
+GABOR_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_gabor.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_gabor.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_gabor.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_gabor.bin')
+					}
+HAAR_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_haar.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_haar.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_haar.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_haar.bin')
+					}
+DB4_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_db4.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_db4.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_db4.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_db4.bin')
+					}
+
+LBP_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_lbp.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_lbp.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_lbp.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_lbp.bin')
+					}
+
+GLCM_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_glcm.bin'), 
+					'kylberg_test':os.path.join(DATA_DIR, 'kylberg_test_glcm.bin'),
+					'kth_train':os.path.join(DATA_DIR, 'kth_train_glcm.bin'),
+					'kth_test':os.path.join(DATA_DIR, 'kth_test_glcm.bin')
+					}
+
+datas_paths = {'gabor':GABOR_DATA_PATHS, 'haar':HAAR_DATA_PATHS}
+
+print(datas_paths['gabor']['kylberg_train'])

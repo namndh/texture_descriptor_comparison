@@ -13,6 +13,7 @@ from skimage import feature
 from torch.utils.data import Dataset
 import glob
 import mahotas as mt
+from random import shuffle
 
 import constants
 
@@ -133,7 +134,7 @@ class Mydataset(Dataset):
 
 	def __getitem__(self, idx):
 		image = cv2.imread(self.fns[idx])
-		gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 		gray_img = cv2.resize(gray_img, (256, 256))
 		if self.transform:
 			features_vector = self.transform(image)
@@ -173,29 +174,20 @@ def build_fns_labels(labels, dataset, test_ratio=0.2):
 			test_paths.append(path)
 
 	return train_paths, test_paths
-# def build_fns_labels(labels, test_ratio = 0.2, val_ratio=0.2, dataset):
-#     train_paths = list()
-#     val_paths = list()
-#     test_paths = list()
-#     train_ratio = (1-val_ratio)*(1-test_ratio)
-#     val_ratio = (1-test_ratio)*val_ratio
-#     for idx, label in enumerate(labels):
-#         label_paths = list()
-#         if dataset == 'kth':
-#         	label_dir = os.path.join(constants.KTH_TIPS2_DATA_PATH, label)
-#         if dataset == 'kylberg':
-#         	label_dir = os.path.join(constants.KYLBERG_DATA_PATH, label)
-#         fns = glob.glob(label_dir+'/*.png')
-#         for fn in fns:
-#             label_paths.append([fn, idx])
-#         train_pivot = int(train_ratio*len(label_paths))
-#         val_pivot = train_pivot + int(val_ratio*len(label_paths))
-        
-#         for path in label_paths[:int(train_ratio*len(label_paths))]:
-#             train_paths.append(path)
-#         for path in label_paths[train_pivot:val_pivot]:
-#             val_paths.append(path)
-#         for path in label_paths[val_pivot:]:
-#             test_paths.append(path)
 
-#     return train_paths, val_paths, test_paths
+def data_loader(paths, transform):
+	dataset = list()
+	paths = shuffle(paths)
+	for path, label in paths:
+		img = cv2.imread(path)
+		img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		img_gray = cv2.resize(img_gray, (256, 256))
+
+		data = transform(img_gray)
+		dataset.append([data, label])
+
+	return dataset
+
+
+extractors = {'gabor':gaborFilters_featuresExtractor, 'haar':Haar_featuresExtractor, 'db4':DB4_featuresExtractor, 'lbp':LBP_featuresExtractor, 
+				'glcm':GLCM_featuresExtractor}
