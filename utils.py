@@ -26,16 +26,16 @@ def configs(dataset):
 
 class classifier():
 	def __init__(self, args, configs):
-		if args.model == 'svm':
+		if args['model'] == 'svm':
 			self.param_grid = {'C': [0.1, 1, 10, 100], 'gamma': [1, 0.1, 0.01, 0.001, 0.00001, 10], 
-					'kernel':args.kernels_svm}
-			self.clf = GridSearchCV(SVC(), param_grid, verbose=1)
+					'kernel':args['kernels_svm']}
+			self.clf = GridSearchCV(SVC(), self.param_grid, verbose=1)
 
-		if args.model == 'knn':
+		if args['model'] == 'knn':
 			self.clf = KNeighborsClassifier(configs['class_num'], weights='distance')
 		
-		if args.model == 'nb':
-			self.clf = MultinomialNB(alpha=1, fit_prior=False, class_prior=False)
+		if args['model'] == 'nb':
+			self.clf = GaussianNB()
 
 	def fit(self, X_train, y_train):
 		self.clf.fit(X_train,y_train)
@@ -49,7 +49,7 @@ class classifier():
 		return self.acc
 
 	def save_model(self):
-		path_key = args.model + '_model_path'
+		path_key = args['model'] + '_model_path'
 		print('Saving...')
 		with open(configs[path_key]) as model_bin:
 			pickle.dump(self.clf, model_bin)
@@ -176,7 +176,7 @@ def build_fns_labels(labels, dataset, test_ratio=0.2):
 
 def data_loader(paths, transform):
 	dataset = list()
-	paths = shuffle(paths)
+	shuffle(paths)
 	for path, label in paths:
 		img = cv2.imread(path)
 		img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

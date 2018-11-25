@@ -5,7 +5,7 @@ from skimage.filters import gabor_kernel
 import numpy as np
 from utils import *
 from torch.utils.data import Dataset, DataLoader
-
+import datetime
 
 # img_path = os.path.join('./data/Kylberg/blanket1/blanket1-a-p001.png')
 
@@ -120,3 +120,7 @@ datas_paths = {'gabor':GABOR_DATA_PATHS, 'haar':HAAR_DATA_PATHS}
 
 descriptor = 'gabor'
 print(datas_paths[descriptor]['kylberg_train'])
+
+x = datetime.datetime.now()
+
+print(x.strftime("%H:%M-%d-%b-%Y"))
