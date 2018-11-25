@@ -72,18 +72,18 @@ kernels = []
 
 # lists.extend(returns())
 # print(lists)
-folders = [x[0] for x in os.walk(constants.KYLBERG_DATA_PATH)]
-# print(folders)
-labels = get_labels(folders, constants.KYLBERG_FOLDER)
-# print(labels)
+# folders = [x[0] for x in os.walk(constants.KYLBERG_DATA_PATH)]
+# # print(folders)
+# labels = get_labels(folders, constants.KYLBERG_FOLDER)
+# # print(labels)
 
-train_paths, test_paths = build_fns_labels(labels, dataset='kylberg')
-# print('{}.{}'.format(len(train_paths), len(test_paths)))
+# train_paths, test_paths = build_fns_labels(labels, dataset='kylberg')
+# # print('{}.{}'.format(len(train_paths), len(test_paths)))
+# # print(train_paths)
 # print(train_paths)
-
-img = cv2.imread(train_paths[0][0])
-img = cv2.cvtColor(img,	 cv2.COLOR_BGR2GRAY)
-print(extractors['db4'](img))
+# img = cv2.imread(train_paths[0][0])
+# img = cv2.cvtColor(img,	 cv2.COLOR_BGR2GRAY)
+# print(extractors['db4'](img))
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = os.path.join(PROJECT_DIR, 'datas')
@@ -118,4 +118,5 @@ GLCM_DATA_PATHS = {'kylberg_train':os.path.join(DATA_DIR, 'kylberg_train_glcm.bi
 
 datas_paths = {'gabor':GABOR_DATA_PATHS, 'haar':HAAR_DATA_PATHS}
 
-print(datas_paths['gabor']['kylberg_train'])
+descriptor = 'gabor'
+print(datas_paths[descriptor]['kylberg_train'])

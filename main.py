@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split, GridSearchCV
 from torch.utils.data import Dataset, DataLoader
 import cv2
-
+import csv
 
 import constants
 from utils import *
@@ -24,8 +24,8 @@ kth_config = configs('kth')
 kylberg_config = configs('kylberg')
 models = ['svm', 'nb', 'knn']
 svm_kernels = ['linear', 'poly', 'rbf', 'sigmoid']
-
-
+descriptors = ['gabor', 'haar', 'db4',  'lbp', 'glcm']
+datasets = ['kylberg', 'kth']
 
 
 if args.process_data:
@@ -33,79 +33,52 @@ if args.process_data:
 	kylberg_labels = get_labels(kylberg_folders, constants.KYLBERG_FOLDER)
 	kylberg_train_paths, kylberg_test_paths = build_fns_labels(kylberg_labels, 'kylberg')
 
-	kylberg_train_gabor_dataset = data_loader(kylberg_train_paths, transform=gaborFilters_featuresExtractor)
-	with open(constants.GABOR_DATA_PATHS['kylberg_train'], 'wb') as f:
-		pickle.dump(kylberg_train_gabor_dataset, f)
-
-	kylberg_test_gabor_dataset = data_loader(kylberg_test_paths, transform=gaborFilters_featuresExtractor)
-	with open(constants.GABOR_DATA_PATHS['kylberg_test'], 'wb') as f:
-		pickle.dump(kylberg_test_gabor_dataset, f)
-
-	kylberg_train_haar_dataset = data_loader(kylberg_train_paths, transform=Haar_featuresExtractor)
-	with open(constants.HAAR_DATA_PATHS['kylberg_train'], 'wb') as f:
-		pickle.dump(kylberg_train_haar_dataset, f)
-
-	kylberg_test_haar_dataset = data_loader(kylberg_test_paths, transform=Haar_featuresExtractor)
-	with open(constants.HAAR_DATA_PATHS['kylberg_test'], 'wb') as f:
-		pickle.dump(kylberg_test_haar_dataset, f)
-
-	kylberg_train_db4_dataset = data_loader(kylberg_train_paths, transform=DB4_featuresExtractor)
-	with open(constants.DB4_DATA_PATHS['kylberg_train'], 'wb') as f:
-		pickle.dump(kylberg_train_db4_dataset, f)
-
-	kylberg_test_db4_dataset = data_loader(kylberg_test_paths, transform=DB4_featuresExtractor)
-	with open(constants.DB4_DATA_PATHS['kylberg_test'], 'wb') as f:
-		pickle.dump(kylberg_test_db4_dataset, f)
-
-	kylberg_train_lbp_dataset = data_loader(kylberg_train_paths, transform=LBP_featuresExtractor)
-	with open(constants.LBP_DATA_PATHS['kylberg_train'], 'wb') as f:
-		pickle.dump(kylberg_train_lbp_dataset, f)
-
-	kylberg_test_lbp_dataset = data_loader(kylberg_test_paths, transform=LBP_featuresExtractor)
-	with open(constants.LBP_DATA_PATHS['kylberg_test'], 'wb') as f:
-		pickle.dump(kylberg_test_lbp_dataset, f)
-
-	kylberg_train_glcm_dataset = data_loader(kylberg_train_paths, transform=GLCM_featuresExtractor)
-	with open(constants.LBP_DATA_PATHS['kylberg_train'], 'wb') as f:
-		pickle.dump(kylberg_train_lbp_dataset, f)
-
-	kylberg_test_lbp_dataset = data_loader(kylberg_test_paths, transform=GLCM_featuresExtractor)
-	with open(constants.LBP_DATA_PATHS['kylberg_test'], 'wb') as f:
-		pickle.dump(kylberg_test_lbp_dataset, f)
-
-
 	kth_folders = [x[0] for x in os.walk(constants.KTH_TIPS2_DATA_PATH)]
 	kth_labels = get_labels(kth_folders, constants.KTH_TIPS2_FOLDER)
 	kth_train_paths, kth_test_paths = build_fns_labels(kth_labels, 'kth')
 
-	kth_train_gabor_dataset = data_loader(kth_train_paths, transform=gaborFilters_featuresExtractor)
-	with open(constants.GABOR_DATA_PATHS['kth_train'], 'wb') as f:
-		pickle.dump(kth_train_gabor_dataset, f)
+	for descriptor in descriptors:
+		kylberg_train_data = data_loader(kylberg_train_paths, transform=extractors[descriptor])
+		with open(constants.datas_paths[descriptor]['kylberg_train']) as f:
+			pickle.dump(kylberg_train_data, f)
+		kylberg_test_data = data_loader(kylberg_test_paths, transform=extractors[descriptor])
+		with open(constants.datas_paths[descriptor]['kylberg_test']) as f:
+			pickle.dump(kylberg_test_data, f)
 
-	kth_test_gabor_dataset = data_loader(kth_test_paths, transform=gaborFilters_featuresExtractor)
-	with open(constants.GABOR_DATA_PATHS['kth_test'], 'wb') as f:
-		pickle.dump(kth_test_gabor_dataset, f)
+		kth_train_data = data_loader(kth_train_paths, transform=extractors[descriptor])
+		with open(constants.datas_paths[descriptor]['kth_train']) as f:
+			pickle.dump(kth_train_data, f)
+		kth_test_data = data_loader(kth_test_paths, transform=extractors[descriptor])
+		with open(constants.datas_paths[descriptor]['kth_test']) as f:
+			pickle.dump(kth_test_data, f)
 
-	kth_train_gabor_dataset = data_loader(kth_train_paths, transform=Haar_featuresExtractor)
-	with open(constants.HAAR_DATA_PATHS['kth_train'], 'wb') as f:
-		pickle.dump(kth_train_gabor_dataset, f)
+	print('Finished processing and saving data!')
 
-	kth_test_gabor_dataset = data_loader(kth_test_paths, transform=Haar_featuresExtractor)
-	with open(constants.HAAR_DATA_PATHS['kth_test'], 'wb') as f:
-		pickle.dump(kth_test_gabor_dataset, f)
+if args.evaluate:
+	f=open('./log.csv', 'w+')
+	fields = ['dataset', 'descriptor', 'classifier', 'acc']
+	writer = csv.DictWriter(f, fieldnames=fields)
+	writer.writeheader()
+	for descriptor in descriptors:
+		for dataset in datasets:
+			with open(constants.datas_paths[descriptor][dataset+'_train']) as f:
+				train_data = pickle.load(f)
+			with open(constants.datas_paths[descriptor][dataset+'_test']) as f:
+				test_data = pickle.load(f)
 
-	kth_train_gabor_dataset = data_loader(kth_train_paths, transform=DB4_featuresExtractor)
-	with open(constants.DB4_DATA_PATHS['kth_train'], 'wb') as f:
-		pickle.dump(kth_train_gabor_dataset, f)
+			x_train, y_train = zip(*train_data)
+			x_train = list(x_train)
+			y_train = list(y_train)
 
-	kth_test_gabor_dataset = data_loader(kth_test_paths, transform=DB4_featuresExtractor)
-	with open(constants.DB4_DATA_PATHS['kth_test'], 'wb') as f:
-		pickle.dump(kth_test_gabor_dataset, f)
+			x_test, y_test = zip(*test_data)
+			x_test = list(x_test)
+			y_test = list(y_test)
 
-	kth_train_gabor_dataset = data_loader(kth_train_paths, transform=LBP_featuresExtractor)
-	with open(constants.LBP_DATA_PATHS['kth_train'], 'wb') as f:
-		pickle.dump(kth_train_gabor_dataset, f)
-
-	kth_test_gabor_dataset = data_loader(kth_test_paths, transform=LBP_featuresExtractor)
-	with open(constants.LBP_DATA_PATHS['kth_test'], 'wb') as f:
-		pickle.dump(kth_test_gabor_dataset, f)
+			config = configs[dataset]
+			for model in models:
+				model_args = {'model':model, 'kernels_svm':svm_kernels}
+				clf = classifier(model_args, config)
+				clf.fit(x_train, y_train)
+				acc = clf.evaluate(x_test, y_test)
+				writer.writerow({'dataset':dataset, 'descriptor':descriptor, 'classifier':model, 'acc':acc})
+				

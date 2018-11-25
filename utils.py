@@ -24,14 +24,12 @@ def configs(dataset):
 	elif dataset == 'kylberg':
 		return constants.KYLBERG_CONFIGS
 
-class classfier():
+class classifier():
 	def __init__(self, args, configs):
 		if args.model == 'svm':
-			if args.kernel_svm == 'linear':
-				self.clf = SVC(args.kernel_svm, C=args.C)
-			else:
-				self.param_grid = {'C': [0.1, 1, 10, 100], 'gamma': [1, 0.1, 0.01, 0.001, 0.00001, 10]}
-				self.clf = GridSearchCV(SVC(), param_grid, verbose=1)
+			self.param_grid = {'C': [0.1, 1, 10, 100], 'gamma': [1, 0.1, 0.01, 0.001, 0.00001, 10], 
+					'kernel':args.kernels_svm}
+			self.clf = GridSearchCV(SVC(), param_grid, verbose=1)
 
 		if args.model == 'knn':
 			self.clf = KNeighborsClassifier(configs['class_num'], weights='distance')
@@ -45,7 +43,8 @@ class classfier():
 	def predict(self, X_test):
 		self.predicted = self.clf.predict(X_test)
 
-	def evaluate(self, y_test):
+	def evaluate(self,X_test, y_test):
+		self.predict(X_test)
 		self.acc = accuracy_score(y_test, self.predicted)
 		return self.acc
 
