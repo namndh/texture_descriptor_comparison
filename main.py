@@ -12,6 +12,7 @@ from torch.utils.data import Dataset, DataLoader
 import cv2
 import csv
 import datetime
+from subprocess import call
 
 import constants
 from utils import *
@@ -58,10 +59,9 @@ if args.process_data:
 if args.evaluate:
 	x = datetime.datetime.now()
 	time = x.strftime("%H:%M-%d-%b-%Y")
-	f=open('./log_' + time +'_.csv', 'w+')
-	fields = ['dataset', 'descriptor', 'classifier', 'acc']
-	writer = csv.DictWriter(f, fieldnames=fields)
-	writer.writeheader()
+	f=open('./log_' + time +'_.txt', 'w+')
+	f.write('dataset, descriptor, classifier, acc\n')
+
 	for descriptor in descriptors:
 		for dataset in datasets:
 			with open(constants.datas_paths[descriptor][dataset+'_train'], 'rb') as f:
@@ -83,5 +83,6 @@ if args.evaluate:
 				clf = classifier(model_args, config)
 				clf.fit(x_train, y_train)
 				acc = clf.evaluate(x_test, y_test)
-				writer.writerow({'dataset':dataset, 'descriptor':descriptor, 'classifier':model, 'acc':acc})
-				
+				strings = str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n'
+	f.close()
+	call("shutdown", "-h", "now")			

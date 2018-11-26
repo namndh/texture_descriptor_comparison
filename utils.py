@@ -29,10 +29,10 @@ class classifier():
 		if args['model'] == 'svm':
 			self.param_grid = {'C': [0.1, 1, 10, 100], 'gamma': [1, 0.1, 0.01, 0.001, 0.00001, 10], 
 					'kernel':args['kernels_svm']}
-			self.clf = GridSearchCV(SVC(), self.param_grid, verbose=1)
+			self.clf = GridSearchCV(SVC(), self.param_grid, verbose=1, n_jobs=12)
 
 		if args['model'] == 'knn':
-			self.clf = KNeighborsClassifier(configs['class_num'], weights='distance')
+			self.clf = KNeighborsClassifier(configs['class_num'], weights='distance', n_jobs=12)
 		
 		if args['model'] == 'nb':
 			self.clf = GaussianNB()
