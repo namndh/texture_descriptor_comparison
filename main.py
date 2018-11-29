@@ -15,7 +15,7 @@ import datetime
 # from subprocess import call
 
 import constants
-# from utils import *
+from utils import *
 
 parser = argparse.ArgumentParser(description="Texture Descriptor Comparision")
 parser.add_argument('--evaluate', '-e', action='store_true', help='Evaluate texture descriptors')
