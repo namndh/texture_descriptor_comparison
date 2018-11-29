@@ -1,0 +1,13 @@
+dataset, descriptor, classifier, acc
+kylberg,gabor,svm,0.9966517857142857
+kylberg,gabor,nb,0.8984375
+kylberg,gabor,knn,0.9475446428571429
+kth,gabor,svm,0.960427807486631
+kth,gabor,nb,0.5614973262032086
+kth,gabor,knn,0.7529411764705882
+kylberg,haar,svm,0.9553571428571429
+kylberg,haar,nb,0.8828125
+kylberg,haar,knn,0.8895089285714286
+kylberg,db4,svm,0.953125
+kylberg,db4,nb,0.890625
+kylberg,db4,knn,0.8984375

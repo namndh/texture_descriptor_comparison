@@ -124,3 +124,13 @@ print(datas_paths[descriptor]['kylberg_train'])
 x = datetime.datetime.now()
 
 print(x.strftime("%H:%M-%d-%b-%Y"))
+
+kth_folders = [x[0] for x in os.walk(constants.KTH_TIPS2_DATA_PATH)]
+kth_labels = get_labels(kth_folders, constants.KTH_TIPS2_FOLDER)
+kth_train_paths, kth_test_paths = build_fns_labels(kth_labels, 'kth')
+print(len(kth_train_paths))
+
+kylberg_folders = [x[0] for x in os.walk(constants.KYLBERG_DATA_PATH)]
+kylberg_labels = get_labels(kylberg_folders, constants.KYLBERG_FOLDER)
+kylberg_train_paths, kylberg_test_paths = build_fns_labels(kylberg_labels, 'kylberg')
+print(len(kylberg_train_paths))

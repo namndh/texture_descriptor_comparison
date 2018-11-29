@@ -25,8 +25,8 @@ args = parser.parse_args()
 kth_config = configs('kth')
 kylberg_config = configs('kylberg')
 models = ['svm', 'nb', 'knn']
-svm_kernels = ['linear', 'poly', 'rbf', 'sigmoid']
-descriptors = ['gabor', 'haar', 'db4',  'lbp', 'glcm']
+svm_kernels = ['poly','rbf']
+descriptors = ['db4',  'lbp', 'glcm']
 datasets = ['kylberg', 'kth']
 
 
@@ -59,9 +59,10 @@ if args.process_data:
 if args.evaluate:
 	x = datetime.datetime.now()
 	time = x.strftime("%H:%M-%d-%b-%Y")
+	time_created = time
 	f=open('./log_' + time +'_.txt', 'w+')
 	f.write('dataset, descriptor, classifier, acc\n')
-
+	f.close()
 	for descriptor in descriptors:
 		for dataset in datasets:
 			with open(constants.datas_paths[descriptor][dataset+'_train'], 'rb') as f:
@@ -84,5 +85,34 @@ if args.evaluate:
 				clf.fit(x_train, y_train)
 				acc = clf.evaluate(x_test, y_test)
 				strings = str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n'
+				print(strings)
+				f=open('log_18:57-27-Nov-2018_.txt', 'a')
+				f.write(str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n')
+				f.close()
+
+dataset = 'kth'
+descriptor = 'db4'
+with open(constants.datas_paths[descriptor][dataset + '_train'], 'rb') as f:
+	train_data = pickle.load(f)
+
+with open(constants.datas_paths[descriptor][dataset + '_test'], 'rb') as f:
+	test_data = pickle.load(f)
+
+x_train, y_train = zip(*train_data)
+x_train = list(x_train)
+y_train = list(y_train)
+
+x_test, y_test = zip(*test_data)
+x_test = list(x_test)
+y_test = list(y_test)
+config = configs(dataset)
+for model in models:
+	model_args = {'model':model, 'kernels_svm':svm_kernels}
+	clf = classifier(model_args, config)
+	clf.fit(x_train, y_train)
+	acc = clf.evaluate(x_test, y_test)
+	strings = str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n'
+	print(strings)
+	f=open('./log_18:57-27-Nov-2018_.txt', 'a')
+	f.write(str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n')
 	f.close()
-	call("shutdown", "-h", "now")			
