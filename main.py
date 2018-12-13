@@ -26,8 +26,8 @@ kth_config = configs('kth')
 kylberg_config = configs('kylberg')
 models = ['svm', 'nb', 'knn']
 svm_kernels = ['linear']
-descriptors = ['glcm']
-datasets = ['kylberg']
+descriptors = ['gabor','haar', 'db4', 'lbp','glcm']
+datasets = ['kth','kylberg']
 
 
 if args.process_data:
@@ -79,8 +79,6 @@ if args.evaluate:
 			x_test = list(x_test)
 			y_test = list(y_test)
 
-			# print(x_train[0].shape)
-			# print(x_test[0].shape)
 			config = configs(dataset)
 			for model in models:
 				model_args = {'model':model, 'kernels_svm':svm_kernels}
@@ -92,30 +90,3 @@ if args.evaluate:
 				f=open(log_path, 'a')
 				f.write(str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n')
 				f.close()
-
-# dataset = 'kth'
-# descriptor = 'db4'
-# with open(constants.datas_paths[descriptor][dataset + '_train'], 'rb') as f:
-# 	train_data = pickle.load(f)
-
-# with open(constants.datas_paths[descriptor][dataset + '_test'], 'rb') as f:
-# 	test_data = pickle.load(f)
-
-# x_train, y_train = zip(*train_data)
-# x_train = list(x_train)
-# y_train = list(y_train)
-
-# x_test, y_test = zip(*test_data)
-# x_test = list(x_test)
-# y_test = list(y_test)
-# config = configs(dataset)
-# for model in models:
-# 	model_args = {'model':model, 'kernels_svm':svm_kernels}
-# 	clf = classifier(model_args, config)
-# 	clf.fit(x_train, y_train)
-# 	acc = clf.evaluate(x_test, y_test)
-# 	strings = str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n'
-# 	print(strings)
-# 	f=open('./log_18:57-27-Nov-2018_.txt', 'a')
-# 	f.write(str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n')
-# 	f.close()

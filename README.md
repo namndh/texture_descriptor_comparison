@@ -1,3 +1,4 @@
-### thu vien: numpy, scikit-learn, scipy
-### tao thu muc datas, giai nen cac file trong file zip vao folder datas
-### python main.py 
+# Texture Descritor Comparision
+## A comparision between Gabor filters banks, Haar and Daub-4 wavelet transforms, LBP and GLCM texture descriptor using SVM, KNN and Naive Bayes
+## Result in csv
+## Report with related knowledge and conclusions about result [I'm an inline-style link](https://www.google.com)
