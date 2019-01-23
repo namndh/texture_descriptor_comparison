@@ -10,10 +10,12 @@ import cv2
 import numpy as np
 import pywt
 from skimage import feature
-# from torch.utils.data import Dataset
+from torch.utils.data import Dataset
 import glob
 import mahotas as mt
 from random import shuffle
+from PIL import Image
+import torch
 
 import constants
 
@@ -118,28 +120,6 @@ def GLCM_featuresExtractor(image):
 	return ht_mean
 
 
-class Mydataset(Dataset):
-	"""custom dataset to load and process image"""
-	def __init__(self, data, transform=None):
-		self.fns = list()
-		self.labels = list()
-		for fn, label in data:
-			self.fns.append(fn)
-			self.labels.append(label)
-		self.transform = transform
-
-	def __len__(self):
-		return len(self.fns)
-
-	def __getitem__(self, idx):
-		image = cv2.imread(self.fns[idx])
-		gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-		gray_img = cv2.resize(gray_img, (256, 256))
-		if self.transform:
-			features_vector = self.transform(image)
-			return features_vector, self.labels[idx]
-		
-
 def get_labels(folders, substrings):
 	substr1 = '/' + substrings
 	interval = len(substr1)+1
@@ -189,6 +169,54 @@ def data_loader(paths, transform):
 		dataset.append([data, label])
 
 	return dataset
+
+
+class MyDataset(Dataset):
+	"""Custom dataset loader"""
+	def __init__(self, datas, transform=None):
+		assert datas != None, 'ERRORL: Data is not available!'
+		self.transform = transform
+		self.paths, self.labels = zip(*datas)
+		self.paths = list(self.paths)
+		self.labels = list(self.labels)
+	def __len__(self):
+		return len(self.paths)
+
+	def __getitem__(self, idx):
+		image = Image.open(self.paths[idx])
+		image = image.resize((224, 224))
+		label = self.labels[idx]
+
+		if self.transform:
+			image = self.transform(image)
+
+		return image, label
+
+
+def exp_lr_scheduler(args, optimizer, epoch):
+	init_lr = args.init_lr
+	lr_decay_epoch = 50
+	weight_decay = args.weight_decay
+	lr = init_lr * (0.6**(min(epoch, 200) // lr_decay_epoch))
+	print(lr)
+	for param_group in optimizer.param_groups:
+		param_group['lr'] = lr
+		param_group['weight_decay'] = weight_decay
+
+	return optimizer, lr
+
+def save_convergence_model(save_loss, model, epoch):
+	print("\nSaving convergence model at epoch {} with loss {}\n".format(epoch, save_loss))
+	state = {
+		'model' : model.state_dict(),
+		'loss' : save_loss,
+		'epoch' : epoch
+	}
+	if not os.path.isdir('./checkpoints/convergence'):
+		os.mkdir('./checkpoints/convergence')
+
+	torch.save(state, './checkpoints/convergence/checkpoint.t7')
+
 
 
 extractors = {'gabor':gaborFilters_featuresExtractor, 'haar':Haar_featuresExtractor, 'db4':DB4_featuresExtractor, 'lbp':LBP_featuresExtractor, 

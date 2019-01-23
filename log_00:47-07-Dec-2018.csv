@@ -29,3 +29,5 @@ kylberg,glcm,knn,0.6104910714285714
 kth,glcm,svm,0.6502673796791444
 kth,glcm,nb,0.5711229946524065
 kth,glcm,knn,0.6010695187165775
+Accuracy of model in predicting in dataset kylberg is 99.6%.
+Accuracy of model in predicting in dataset kth is 99.3%.
