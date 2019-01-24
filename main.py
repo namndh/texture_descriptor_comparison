@@ -41,8 +41,8 @@ kth_config = configs('kth')
 kylberg_config = configs('kylberg')
 models = ['svm', 'nb', 'knn']
 svm_kernels = ['linear']
-descriptors = ['gabor','haar', 'db4', 'lbp','glcm']
-datasets = ['kylberg']
+descriptors = ['glcm']
+datasets = ['kth']
 
 
 def save_best_acc_model(save_acc, model, epoch, device, dataset):
@@ -171,10 +171,11 @@ if args.evaluate_descriptors:
 	time_created = time
 	log_path = './log_' + time +'_.txt'
 	f=open(log_path, 'w+')
-	f.write('dataset, descriptor, classifier, acc\n')
+	f.write('dataset, descriptor, classifier, acc, time\n')
 	f.close()
 	for descriptor in descriptors:
 		for dataset in datasets:
+
 			with open(constants.datas_paths[descriptor][dataset+'_train'], 'rb') as f:
 				train_data = pickle.load(f)
 			with open(constants.datas_paths[descriptor][dataset+'_test'], 'rb') as f:
@@ -190,14 +191,19 @@ if args.evaluate_descriptors:
 
 			config = configs(dataset)
 			for model in models:
+				FMT = '%H:%M:%S'
+				time1 = datetime.datetime.now().strftime('%H:%M:%S')
 				model_args = {'model':model, 'kernels_svm':svm_kernels}
 				clf = classifier(model_args, config)
 				clf.fit(x_train, y_train)
 				acc = clf.evaluate(x_test, y_test)
-				strings = str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n'
+				
+				time2 = datetime.datetime.now().strftime('%H:%M:%S')
+				deltaTime = datetime.datetime.strptime(time2, FMT) - datetime.datetime.strptime(time1, FMT)
+				strings = str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + ',' +  str(deltaTime) +'\n'
 				print(strings)
 				f=open(log_path, 'a')
-				f.write(str(dataset) + ',' + str(descriptor) + ',' + str(model) + ',' + str(acc) + '\n')
+				f.write(strings)
 				f.close()
 
 if args.evaluate_shuffle_net:

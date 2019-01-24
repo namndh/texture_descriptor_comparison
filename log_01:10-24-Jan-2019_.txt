@@ -1,0 +1,4 @@
+dataset, descriptor, classifier, acc, time
+kth,glcm,svm,0.6502673796791444,0:36:48
+kth,glcm,nb,0.5711229946524065,0:00:00
+kth,glcm,knn,0.6010695187165775,0:00:00

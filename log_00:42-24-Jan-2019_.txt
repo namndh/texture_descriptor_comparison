@@ -1,0 +1,4 @@
+dataset, descriptor, classifier, acc, time
+kylberg,glcm,svm,0.6897321428571429,0:00:19
+kylberg,glcm,nb,0.7544642857142857,0:00:00
+kylberg,glcm,knn,0.6104910714285714,0:00:00

@@ -29,7 +29,7 @@ def configs(dataset):
 class classifier():
 	def __init__(self, args, configs):
 		if args['model'] == 'svm':
-			self.param_grid = {'C': [0.1, 1], 'gamma': [1, 0.1, 0.001], 
+			self.param_grid = {'C': [1], 'gamma': [0.1, 0.001], 
 					'kernel':args['kernels_svm']}
 			self.clf = GridSearchCV(SVC(), self.param_grid, verbose=1, n_jobs=6)
 
